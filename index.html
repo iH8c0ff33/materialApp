@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daniele's App</title>
+  <script src="node_modules/socket.io-client/socket.io.js"></script>
+  <meta name="theme-color" content="#2196f3"><!--Chrome for Android theme color-->
+  <meta name="msapplication-TileColor" content="#2196f3"><!--Windows Tile color-->
+  <meta name="mobile-web-app-capable" content="yes"><!--Android WebApp capable-->
+  <meta name="application-name" content="D!"><!--Android WebApp name-->
+  <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png"><!--Android WebApp icon-->
+  <meta name="apple-mobile-web-app-capable" content="yes"><!--iOS WebApp capable-->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"><!--iOS Safari statusbar color-->
+  <meta name="apple-mobile-web-app-title" content="Daniele's App"><!--iOS WebApp name-->
+  <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png"><!--iOS WebApp icon-->
+  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png"><!--Windows Tile icon-->
+  <link rel="stylesheet" href="styles/main.css"><!--Main stylesheet-->
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script><!--WebComponentsJS for Browsers without WebComponents support-->
+  <link rel="import" href="bower_components/imports.html"><!--All Polymer imports REMINDER: Vulcanize all of them when finished!!!-->
+  <script>
+    var socket = io('http://192.168.43.224:3000');
+    var justConnected
+    socket.on('authentication', function (data) {
+      if (data.authenticated) {
+        console.log('authenticated as '+data.name);
+        toast = document.getElementById('toast');
+        toast.text = 'Connected as '+data.name;
+        toast.show();
+        document.getElementById('chatNameBox').value = data.name;
+        justConnected = true;
+      }
+    });
+    socket.on('disconnect', function () {
+      toast = document.getElementById('toast');
+      toast.text = 'Connection lost';
+      toast.show();
+    });
+    socket.on('message', function (data) {
+      if (document.getElementById('chatSelector').className !== 'iron-selected') {
+        if (!justConnected) {
+          toast = document.getElementById('toast');
+          toast.text = data.name+': '+data.text;
+          toast.duration = '3000';
+          toast.show();
+        } else {
+          justConnected = false;
+        }
+      }
+      insertMessage(data.name, data.text);
+    });
+    socket.on('toast', function (data) {
+      toast = document.getElementById('toast');
+      toast.text = data.text;
+      toast.duration = data.duration;
+      toast.show();
+    });
+    function insertMessage(author, text) {
+      document.getElementById('messageContainer').innerHTML = '<paper-material elevation="1"><h1>'+author+'</h1><p>'+text+'</p></paper-material>'+document.getElementById('messageContainer').innerHTML;
+    }
+    function emitMessage() {
+      socket.emit('message', {
+        text: document.getElementById('messageBox').value
+      }); document.getElementById('messageBox').value = '';
+    }
+    function checkKey(e) {
+      if (e.keyCode === 13) {
+        emitMessage();
+      }
+    }
+  </script>
+</head>
+
+<body unresolved class="fullbleed layout vertical">
+  <span id="browser-sync-binding"></span>
+  <template is="dom-bind" id="app">
+    <paper-drawer-panel id="paperDrawerPanel">
+      <paper-scroll-header-panel drawer fixed>
+        <paper-toolbar id="drawerToolbar">
+          <span class="paper-font-title">Menu</span>
+        </paper-toolbar>
+        <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+          <a data-route="home" href="/">
+            <iron-icon icon="home"></iron-icon>
+            <span>Home</span>
+          </a>
+          <a data-route="users" href="/users">
+            <iron-icon icon="info"></iron-icon>
+            <span>Users</span>
+          </a>
+          <a id="chatSelector" data-route="chat" href="/chat">
+            <iron-icon icon="mail"></iron-icon>
+            <span>Messages</span>
+          </a>
+          <a data-route="settings" href="/settings">
+            <iron-icon icon="settings"></iron-icon>
+            <span>Settings</span>
+          </a>
+        </paper-menu>
+      </paper-scroll-header-panel>
+      <paper-scroll-header-panel main condenses keep-condensed-header>
+        <paper-toolbar id="mainToolbar" class="tall">
+          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <span class="flex"></span>
+          <paper-icon-button icon="refresh"></paper-icon-button>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
+          <div class="middle middle-container center horizontal layout">
+            <div class="app-name">Daniele's App</div>
+          </div>
+          <div class="bottom bottom-container center horizontal layout">
+            <div class="bottom-title paper-font-subhead">Wooooow such material!</div>
+          </div>
+        </paper-toolbar>
+        <div id="mainContainer" class="content">
+          <iron-pages attr-for-selected="data-route" selected="{{route}}">
+            <section data-route="home">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">This is a fantastic material pane</h2>
+                <h1>Heading type 1</h1>
+                <p>Such wow, isn't it?</p>
+                <p>This is a form example :</p>
+                <paper-radio-group id="exRadio" selected="radio1">
+                  <paper-radio-button name="radio1">Radio 1</paper-radio-button><br>
+                  <paper-radio-button name="radio2">Radio 2</paper-radio-button><br>
+                  <paper-radio-button name="radio3">Radio 3</paper-radio-button><br>
+                  <paper-radio-button name="radio4">Radio 4</paper-radio-button><br>
+                  <paper-radio-button name="radio5">Radio 5</paper-radio-button><br>
+                </paper-radio-group><br>
+                <paper-button ok onclick="(function () {
+                  document.getElementById('exInput').value = document.getElementById('exRadio').selected;
+                }())">
+                  <iron-icon icon="done"></iron-icon>
+                  OK
+                </paper-button>
+                <paper-button cancel>
+                  <iron-icon icon="clear"></iron-icon>
+                  Cancel
+                </paper-button>
+                <paper-input id="exInput"></paper-input>
+              </paper-material>
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Second pane</h2>
+                <paper-input label="Floating label" style="width: 200px;"></paper-input>
+                <paper-button raised colored>
+                  Raised
+                </paper-button>
+              </paper-material>
+            </section>
+            <section data-route="users">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Users</h2>
+                <p>This is the users section</p>
+                <a href="/users/Rob">Rob</a>
+              </paper-material>
+            </section>
+            <section data-route="user-info">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">
+                User:<span>{{params.name}}</span>
+                </h2>
+                <div>This is <span>{{params.name}}</span>'s section</div>
+              </paper-material>
+            </section>
+            <section data-route="chat">
+              <div id="messageContainer">
+              </div>
+              <script>
+                document.getElementById('messageBox').style.width = (document.getElementById('mainContainer').offsetWidth - 60)+'px';
+                document.getElementById('messageBoxContainer').style.width = document.getElementById('mainContainer').offsetWidth+'px';
+              </script>
+              <div id="messageBoxContainer" style="height: 42px; position: fixed; bottom: 0; right: 0; background-color: #fff;">
+                <paper-icon-button icon="send" style="position: fixed; bottom: 0; right: 12px;" onclick="emitMessage();"></paper-icon-button>
+                <paper-input id="messageBox" style="position: fixed; bottom: 0; right: 50px;" onkeypress="checkKey(event);"></paper-input>
+              </div>
+            </section>
+            <section data-route="settings">
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Chat Settings</h2>
+                <paper-input id="chatNameBox" label="Your Name" maxlength="32"></paper-input>
+              </paper-material>
+              <paper-fab icon="done" style="position: fixed; bottom: 24px; right: 24px;" onclick="socket.emit('namechange', {
+                name: document.getElementById('chatNameBox').value
+              });"></paper-fab>
+            </section>
+          </iron-pages>
+          <script>
+            if (!document.getElementById('paperDrawerPanel').narrow) {
+              document.getElementById('toast').style.left = (document.getElementById('drawerToolbar').offsetWidth + 14)+'px';
+            }
+          </script>
+          <paper-toast id="toast" text="default" duration="3000"></paper-toast>
+        </div>
+      </paper-scroll-header-panel>
+    </paper-drawer-panel>
+  </template>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

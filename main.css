@@ -1,0 +1,55 @@
+/*WARNING THIS IS OLD CSS FILE NEW IS IN styles/main.css*/
+body {
+  font-family: Roboto,Noto,'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+}
+div[main] {
+  padding-left: 2%;
+  background-color: #eee;
+}
+paper-button.colored {
+  color: #2196f3;
+}
+paper-fab.floatingBottomRight {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+}
+paper-dialog#dialog {
+  position: fixed;
+  top: 10px;
+}
+/*Tablets*/
+@media only screen and (max-device-width: 980px) {
+  body {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  paper-fab {
+    width: 96px;
+    height: 96px;
+  }
+}
+/*Phones*/
+@media only screen and (max-device-width: 480px) {
+  body {
+    font-size: 34px;
+    line-height: 42px;
+  }
+  paper-fab {
+    width: 128px;
+    height: 128px;
+  }
+}
+/*Small phones*/
+@media only screen and (max-device-width: 360px) {
+  body {
+    font-size: 40px;
+    line-height: 48px;
+  }
+  paper-fab {
+    width: 148px;
+    height: 148px;
+  }
+}

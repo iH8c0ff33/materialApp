@@ -1,0 +1,35 @@
+{
+  "name": "materialApp",
+  "version": "0.0.0",
+  "homepage": "https://github.com/iH8c0ff33/materialApp",
+  "authors": [
+    "Daniele Monteleone <daniele.monteleone.it@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "paper-button": "PolymerElements/paper-button#^1.0.0",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.0.0",
+    "paper-fab": "PolymerElements/paper-fab#^1.0.0",
+    "iron-icons": "PolymerElements/iron-icons#~1.0.3",
+    "iron-icon": "PolymerElements/iron-icon#~1.0.2",
+    "paper-dialog": "PolymerElements/paper-dialog#~1.0.1",
+    "paper-drawer-panel": "PolymerElements/paper-drawer-panel#~1.0.3",
+    "paper-header-panel": "PolymerElements/paper-header-panel#~1.0.3",
+    "paper-toolbar": "PolymerElements/paper-toolbar#~1.0.4",
+    "paper-scroll-header-panel": "PolymerElements/paper-scroll-header-panel#~1.0.6",
+    "iron-elements": "PolymerElements/iron-elements#1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#1.0.1",
+    "platinum-elements": "PolymerElements/platinum-elements#1.0.1",
+    "neon-elements": "PolymerElements/neon-elements#1.0.0",
+    "page": "visionmedia/page.js#~1.6.3",
+    "paper-menu-button": "PolymerElements/paper-menu-button#~1.0.0"
+  }
+}
