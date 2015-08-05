@@ -1,6 +1,25 @@
-var app = require('http').createServer(handler)
+var app = require('http').createServer(handler);
 var io = require('socket.io')(app);
 var fs = require('fs');
+var db = require('sequelize');
+var crypt = require('crypto');
+
+var mydb = new db('mydb', 'Daniele', 'fuckinEvilBadC0ff33', {
+  dialect: 'postgres'
+});
+var users = mydb.define('users', {
+  username: {
+    type: db.STRING(32)
+  },
+  chatName: {
+    type: db.STRING(24)
+  },
+  password: {
+    type: db.STRING(64)
+  }
+}, {
+  freezeTableName: true
+});
 
 app.listen(3000, '192.168.43.224');
 

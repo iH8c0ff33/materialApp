@@ -64,9 +64,37 @@
         text: document.getElementById('messageBox').value
       }); document.getElementById('messageBox').value = '';
     }
-    function checkKey(e) {
-      if (e.keyCode === 13) {
-        emitMessage();
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+d.toUTCString();
+      document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for (var i=0; i<ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') c = c.substring(1);
+          if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+      }
+        return "";
+    }
+    function checkPasswordsMatch() {
+      pw1 = document.getElementById('pw1');
+      pw2 = document.getElementById('pw2');
+      if (pw1.value === pw2.value) {
+        pw2.invalid = false;
+      } else {
+        pw2.invalid = true;
+      }
+    }
+    function sendRegistration() {
+      var username = document.getElementById('username');
+      var pw1 = document.getElementById('pw1');
+      var pw2 = document.getElementById('pw2');
+      if (!username.invalid && !pw1.invalid && !pw2.invalid && pw1.value === pw2.value) {
+        console.log('sending registration to server');
       }
     }
   </script>
@@ -149,9 +177,18 @@
             </section>
             <section data-route="users">
               <paper-material elevation="1">
-                <h2 class="paper-font-display2">Users</h2>
-                <p>This is the users section</p>
-                <a href="/users/Rob">Rob</a>
+                <h2 class="paper-font-display2">Login</h2>
+                <paper-input label="Username" maxlength="32" auto-validate pattern="[a-zA-Z0-9]*" error-message="you typed a not admitted symbol"></paper-input>
+                <paper-input style="right: 128px;" label="Password" maxlength="255" auto-validate pattern="[a-zA-Z0-9!@#$%^&*()-_=+,./<>?{}\|`~]*" error-message="you typed a not admitted symbol" type="password"></paper-input>
+                <paper-button raised ok>
+                  LOGIN
+                </paper-button><paper-checkbox checked>Keep login cookie</paper-checkbox>
+              </paper-material>
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Register</h2>
+                <paper-input label="Username" maxlength="32" char-counter auto-validate pattern="[a-zA-Z0-9]*" error-message="only letters and numbers" id="username"></paper-input>
+                <paper-input label="Password" maxlength="64" char-counter auto-validate pattern="[a-zA-Z0-9!@#$%^&*()-_=+,./<>?{}\|`~]*" error-message="only a-z,A-Z,0-9,!@#$%^&*()-_=+,./<>?{}\|`~[]" type="password" id="pw1"></paper-input>
+                <paper-input label="Confirm password" maxlength="64" char-counter error-message="passwords does not match" type="password" id="pw2" onkeyUp="checkPasswordsMatch();"></paper-input>
               </paper-material>
             </section>
             <section data-route="user-info">
@@ -171,13 +208,13 @@
               </script>
               <div id="messageBoxContainer" style="height: 42px; position: fixed; bottom: 0; right: 0; background-color: #fff;">
                 <paper-icon-button icon="send" style="position: fixed; bottom: 0; right: 12px;" onclick="emitMessage();"></paper-icon-button>
-                <paper-input id="messageBox" style="position: fixed; bottom: 0; right: 50px;" onkeypress="checkKey(event);"></paper-input>
+                <paper-input id="messageBox" style="position: fixed; bottom: 0; right: 50px;" onkeypress="if (event.keyCode === 13) { emitMessage(); }"></paper-input>
               </div>
             </section>
             <section data-route="settings">
               <paper-material elevation="1">
                 <h2 class="paper-font-display2">Chat Settings</h2>
-                <paper-input id="chatNameBox" label="Your Name" maxlength="32"></paper-input>
+                <paper-input id="chatNameBox" label="Your Name" char-counter maxlength="32"></paper-input>
               </paper-material>
               <paper-fab icon="done" style="position: fixed; bottom: 24px; right: 24px;" onclick="socket.emit('namechange', {
                 name: document.getElementById('chatNameBox').value
