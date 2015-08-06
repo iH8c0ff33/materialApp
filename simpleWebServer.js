@@ -70,6 +70,7 @@ function handler (req, res) {
 }
 
 var clients = {};
+var authentications = {};
 
 function parseCommand(command, author) {
   console.log('[CHAT] '+socket.client.conn.remoteAddress+' |COM| '+author+': '+command);
@@ -83,6 +84,12 @@ function emitMessage(name, message) {
 }
 
 io.on('connection', function (socket) {
+  authentications[socket.id] = {
+    username: '',
+    token: '',
+    authenticated: false
+  };
+  socket.emit('connected');
   if (socket.client.conn.remoteAddress in clients) {
     console.log('[CHAT] '+socket.client.conn.remoteAddress+' |ACK| name: '+clients[socket.client.conn.remoteAddress].name);
     socket.emit('authentication', {
@@ -182,6 +189,10 @@ io.on('connection', function (socket) {
         result.forEach(function (value, index, array) {
           var thisToken = value.dataValues.token;
           if (data.token == thisToken) {
+            authentications[socket.id].username = value.dataValues.username;
+            authentications[socket.id].token = thisToken;
+            authentications[socket.id].authenticated = true;
+            console.log(authentications[socket.id]);
             socket.emit('auth', {
               success: true
             });
