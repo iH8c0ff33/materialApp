@@ -148,18 +148,50 @@ io.on('connection', function (socket) {
       }
     }).then(function (result) {
       console.log(result.dataValues.username);
-      crypt.pbkdf2(data.password, result.dataValues.salt, 1000, 64, function (err, key) {
-        if (key.toString('hex') == result.dataValues.key) {
-          console.log('successful login');
-          crypt.pseudoRandomBytes(64, function (err, token) {
-            socket.emit('token', {
-              success: true,
-              token: token.toString('hex'),
-              username: result.dataValues.username
+      if (result != null) {
+        crypt.pbkdf2(data.password, result.dataValues.salt, 1000, 64, function (err, key) {
+          if (key.toString('hex') == result.dataValues.key) {
+            console.log('successful login');
+            crypt.pseudoRandomBytes(64, function (err, token) {
+              var expDate = new Date();
+              expDate.setMonth(expDate.getMonth()+1);
+              tokens.create({
+                username: result.dataValues.username,
+                token: token.toString('hex'),
+                expireDate: expDate
+              }).then(function (result) {
+                socket.emit('login', {
+                  success: true,
+                  token: token.toString('hex'),
+                  username: result.dataValues.username
+                });
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     });
+  });
+  socket.on('token', function (data) {
+    tokens.findAll({
+      where: {
+        username: data.username
+      }
+    }).then(function (result) {
+      if (result != null) {
+        result.forEach(function (value, index, array) {
+          var thisToken = value.dataValues.token;
+          if (data.token == thisToken) {
+            socket.emit('auth', {
+              success: true
+            });
+            socket.emit('toast', {
+              text: 'your token is ok',
+              duration: '3000'
+            });
+          }
+        });
+      }
+    })
   });
 });
