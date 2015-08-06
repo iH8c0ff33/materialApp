@@ -95,6 +95,21 @@
       var pw2 = document.getElementById('pw2');
       if (!username.invalid && !pw1.invalid && !pw2.invalid && pw1.value === pw2.value) {
         console.log('sending registration to server');
+        socket.emit('registration', {
+          username: username.value,
+          password: pw1.value
+        });
+      }
+    }
+    function sendLogin() {
+      var username = document.getElementById('usernamelog');
+      var password = document.getElementById('password');
+      if (username.value.length > 0 && password.value.length > 0) {
+        console.log('sending login');
+        socket.emit('login', {
+          username: username.value,
+          password: password.value
+        });
       }
     }
   </script>
@@ -178,17 +193,21 @@
             <section data-route="users">
               <paper-material elevation="1">
                 <h2 class="paper-font-display2">Login</h2>
-                <paper-input label="Username" maxlength="32" auto-validate pattern="[a-zA-Z0-9]*" error-message="you typed a not admitted symbol"></paper-input>
-                <paper-input style="right: 128px;" label="Password" maxlength="255" auto-validate pattern="[a-zA-Z0-9!@#$%^&*()-_=+,./<>?{}\|`~]*" error-message="you typed a not admitted symbol" type="password"></paper-input>
-                <paper-button raised ok>
+                <paper-input label="Username" maxlength="32" auto-validate pattern="[a-zA-Z0-9]*" error-message="you typed a not admitted symbol" id="usernamelog"></paper-input>
+                <paper-input style="right: 128px;" label="Password" maxlength="255" auto-validate pattern="[a-zA-Z0-9!@#$%^&*()-_=+,./<>?{}\|`~]*" error-message="you typed a not admitted symbol" type="password" id="password"></paper-input><br>
+                <paper-button raised ok onclick="sendLogin();">
                   LOGIN
-                </paper-button><paper-checkbox checked>Keep login cookie</paper-checkbox>
+                </paper-button>
+                <paper-checkbox checked style="padding: 2%;">Keep login cookie</paper-checkbox>
               </paper-material>
               <paper-material elevation="1">
                 <h2 class="paper-font-display2">Register</h2>
                 <paper-input label="Username" maxlength="32" char-counter auto-validate pattern="[a-zA-Z0-9]*" error-message="only letters and numbers" id="username"></paper-input>
                 <paper-input label="Password" maxlength="64" char-counter auto-validate pattern="[a-zA-Z0-9!@#$%^&*()-_=+,./<>?{}\|`~]*" error-message="only a-z,A-Z,0-9,!@#$%^&*()-_=+,./<>?{}\|`~[]" type="password" id="pw1"></paper-input>
-                <paper-input label="Confirm password" maxlength="64" char-counter error-message="passwords does not match" type="password" id="pw2" onkeyUp="checkPasswordsMatch();"></paper-input>
+                <paper-input label="Confirm password" maxlength="64" char-counter error-message="passwords does not match" type="password" id="pw2" onkeyUp="checkPasswordsMatch();"></paper-input><br>
+                <paper-button raised ok onclick="sendRegistration();">
+                  REGISTER
+                </paper-button>
               </paper-material>
             </section>
             <section data-route="user-info">

@@ -14,12 +14,30 @@ var users = mydb.define('users', {
   chatName: {
     type: db.STRING(24)
   },
-  password: {
-    type: db.STRING(64)
+  salt: {
+    type: db.BLOB()
+  },
+  key: {
+    type: db.STRING(128)
   }
 }, {
   freezeTableName: true
 });
+users.sync();
+var tokens = mydb.define('tokens', {
+  username: {
+    type: db.STRING(32)
+  },
+  token: {
+    type: db.STRING(128)
+  },
+  expireDate: {
+    type: db.DATE()
+  }
+}, {
+  freezeTableName: true
+});
+tokens.sync();
 
 app.listen(3000, '192.168.43.224');
 
@@ -104,5 +122,44 @@ io.on('connection', function (socket) {
         text: 'Name changed to '+data.name
       });
     }
+  });
+  socket.on('registration', function (data) {
+    if (data.username.length <= 32 && data.password.length <= 64 && data.username.length > 0 && data.password.length > 0) {
+      crypt.pseudoRandomBytes(64, function (err, salt) {
+        if (salt.length === 64) {
+          crypt.pbkdf2(data.password, salt, 1000, 64, function (err, key) {
+            console.log('username: '+data.username);
+            console.log('salt: '+salt);
+            console.log('key: '+key.toString('hex'));
+            users.create({
+              username: data.username,
+              salt: salt,
+              key: key.toString('hex')
+            });
+          });
+        }
+      });
+    }
+  });
+  socket.on('login', function (data) {
+    users.findOne({
+      where: {
+        username: data.username
+      }
+    }).then(function (result) {
+      console.log(result.dataValues.username);
+      crypt.pbkdf2(data.password, result.dataValues.salt, 1000, 64, function (err, key) {
+        if (key.toString('hex') == result.dataValues.key) {
+          console.log('successful login');
+          crypt.pseudoRandomBytes(64, function (err, token) {
+            socket.emit('token', {
+              success: true,
+              token: token.toString('hex'),
+              username: result.dataValues.username
+            });
+          });
+        }
+      });
+    });
   });
 });
